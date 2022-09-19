@@ -66,21 +66,19 @@ PosixSerialPort::open(int baud,
 {
     struct termios options;
     speed_t speed;
-    // Try opening port assuming _name is full path. If it fails
-    // try "/dev/" + _name
+
     _devfd = ::open(_name.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
     if (_devfd == -1)
     {
-        std::string dev("/dev/");
-        dev += _name;
-        _devfd = ::open(dev.c_str(), O_RDWR | O_NOCTTY | O_NDELAY);
-        if (_devfd == -1)
-            return false;
+        ::printf("PosixSerialPort::open: open %s error %d\n", _name.c_str(), errno);
+        return false;
     }
 
     if (tcgetattr(_devfd, &options) == -1)
     {
         close();
+
+        ::printf("PosixSerialPort::open: tcgetattr error %d\n", errno);
         return false;
     }
 
@@ -121,6 +119,8 @@ PosixSerialPort::open(int baud,
     if (cfsetispeed(&options, speed) || cfsetospeed(&options, speed))
     {
         close();
+
+        ::printf("PosixSerialPort::open: cfseti/ospeed error %d\n", errno);
         return false;
     }
 
@@ -196,6 +196,8 @@ PosixSerialPort::open(int baud,
     if (tcsetattr(_devfd, TCSANOW, &options))
     {
         close();
+
+        ::printf("PosixSerialPort::open: tcsetattr error %d\n", errno);
         return false;
     }
 
