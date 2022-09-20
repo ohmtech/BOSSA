@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -383,7 +384,11 @@ main(int argc, char* argv[])
             port->close();
 
             // wait for chip to reboot and USB port to re-appear
-            sleep(1);
+            struct ::stat buffer;
+            while (::stat(config.portArg.c_str (), &buffer) != 0)
+            {
+               sleep(1);
+            }
 
             if (config.debug)
                 printf("Arduino reset done\n");
