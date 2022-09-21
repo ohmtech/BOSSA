@@ -108,6 +108,9 @@ Samba::init()
     }
     catch(SambaError& err)
     {
+        if (_debug)
+            printf("Version thrown\n");
+
         return false;
     }
 

@@ -221,7 +221,10 @@ PosixSerialPort::read(uint8_t* buffer, int len)
     int retval;
 
     if (_devfd == -1)
+    {
+        ::printf("PosixSerialPort::read: dev not opened\n");
         return -1;
+    }
 
     while (numread < len)
     {
@@ -235,17 +238,22 @@ PosixSerialPort::read(uint8_t* buffer, int len)
 
         if (retval < 0)
         {
+            ::printf("PosixSerialPort::read: select error %d\n", errno);
             return -1;
         }
         else if (retval == 0)
         {
+            ::printf("PosixSerialPort::read: select timeout, numread=%d\n", numread);
             return numread;
         }
         else if (FD_ISSET(_devfd, &fds))
         {
             retval = ::read(_devfd, (uint8_t*) buffer + numread, len - numread);
             if (retval < 0)
+            {
+                ::printf("PosixSerialPort::read: read error %d\n", errno);
                 return -1;
+            }
             numread += retval;
         }
     }
