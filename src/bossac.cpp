@@ -373,6 +373,7 @@ main(int argc, char* argv[])
             port = portFactory.create(config.portArg, config.usbPortArg != 0);
 
             printf("Arduino 1200 baud reset\n");
+            fflush(stdout);
             if(!port->open(1200))
             {
                 fprintf(stderr, "Failed to open port at 1200bps\n");
@@ -390,16 +391,21 @@ main(int argc, char* argv[])
             while (::stat(config.portArg.c_str (), &buffer) != 0)
             {
                printf("Waiting for %s to be back up\n", config.portArg.c_str ());
+               fflush(stdout);
                sleep(1);
             }
 
             // USB port reappears before the chip is ready to take serial
             // commands
-            printf("Waiting 1s for %s to accept serial com\n", config.portArg.c_str ());
-            sleep(1);
+            printf("Waiting 5s for %s to accept serial com\n", config.portArg.c_str ());
+            fflush(stdout);
+            sleep(5);
 
             if (config.debug)
+            {
                 printf("Arduino reset done\n");
+                fflush(stdout);
+            }
         }
 
         if (config.portArg.empty())
