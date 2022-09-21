@@ -387,8 +387,14 @@ main(int argc, char* argv[])
             struct ::stat buffer;
             while (::stat(config.portArg.c_str (), &buffer) != 0)
             {
+               printf("Waiting for %s to be back up\n", config.portArg.c_str ());
                sleep(1);
             }
+
+            // USB port reappears before the chip is ready to take serial
+            // commands
+            printf("Waiting 1s for %s to accept serial com\n", config.portArg.c_str ());
+            sleep(1);
 
             if (config.debug)
                 printf("Arduino reset done\n");
