@@ -383,6 +383,8 @@ main(int argc, char* argv[])
             port->setDTR(false);
             port->close();
 
+            sleep(1);
+
             // wait for chip to reboot and USB port to re-appear
             struct ::stat buffer;
             while (::stat(config.portArg.c_str (), &buffer) != 0)
