@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <sys/stat.h>
 #include <sys/time.h>
 #include <unistd.h>
 
@@ -372,6 +373,7 @@ main(int argc, char* argv[])
             port = portFactory.create(config.portArg, config.usbPortArg != 0);
 
             printf("Arduino 1200 baud reset\n");
+            fflush(stdout);
             if(!port->open(1200))
             {
                 fprintf(stderr, "Failed to open port at 1200bps\n");
@@ -382,11 +384,28 @@ main(int argc, char* argv[])
             port->setDTR(false);
             port->close();
 
-            // wait for chip to reboot and USB port to re-appear
             sleep(1);
 
+            // wait for chip to reboot and USB port to re-appear
+            struct ::stat buffer;
+            while (::stat(config.portArg.c_str (), &buffer) != 0)
+            {
+               printf("Waiting for %s to be back up\n", config.portArg.c_str ());
+               fflush(stdout);
+               sleep(1);
+            }
+
+            // USB port reappears before the chip is ready to take serial
+            // commands
+            printf("Waiting 15s for %s to accept serial com\n", config.portArg.c_str ());
+            fflush(stdout);
+            sleep(15);
+
             if (config.debug)
+            {
                 printf("Arduino reset done\n");
+                fflush(stdout);
+            }
         }
 
         if (config.portArg.empty())
